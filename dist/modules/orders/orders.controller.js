@@ -16,18 +16,30 @@ const createOrder = async (req, res) => {
 };
 exports.createOrder = createOrder;
 const orderSummary = async (req, res) => {
-    const seller = await prisma.seller.findFirst({
-        where: { userId: req.user.id }
-    });
-    const summary = {
-        pending: await prisma.order.count({
+    try {
+        const userId = req.user.id;
+        const seller = await prisma.seller.findFirst({
+            where: { userId }
+        });
+        // ✅ Handle null seller properly
+        if (!seller) {
+            return res.status(404).json({ message: "Seller profile not found" });
+        }
+        const pending = await prisma.order.count({
             where: { sellerId: seller.id, status: "PENDING" }
-        }),
-        delivered: await prisma.order.count({
+        });
+        const delivered = await prisma.order.count({
             where: { sellerId: seller.id, status: "DELIVERED" }
-        })
-    };
-    res.json(summary);
+        });
+        return res.json({
+            pending,
+            delivered
+        });
+    }
+    catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Server error" });
+    }
 };
 exports.orderSummary = orderSummary;
 const updateOrderStatus = async (req, res) => {
