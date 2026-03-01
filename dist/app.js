@@ -9,7 +9,8 @@ const auth_routes_1 = __importDefault(require("./routes/auth/auth.routes")); // 
 const app = (0, express_1.default)();
 // Middleware
 app.use((0, cors_1.default)({
-    origin: "http://localhost:3000", // your frontend URL
+    //origin: "http://localhost:3000", // your frontend URL
+    origin: process.env.CLIENT_URL, // your frontend URL
     credentials: true, // if you are sending cookies
 }));
 app.use(express_1.default.json());
